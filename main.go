@@ -192,6 +192,41 @@ func SearchRecipesHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, listOfRecipes)
 }
 
+// swagger:operation GET /recipes/{id} recipes oneRecipe
+// Get one recipe
+// ---
+// produces:
+// - application/json
+// parameters:
+//   - name: id
+//     in: path
+//     description: ID of the recipe
+//     required: true
+//     type: string
+//
+// responses:
+//
+//	'200':
+//	    description: Successful operation
+//	'404':
+//	    description: Invalid recipe ID
+func GetRecipeHandler(c *gin.Context) {
+	id := c.Param("id")
+	index := -1
+	for i := 0; i < len(recipes); i++ {
+		if recipes[i].ID == id {
+			index = i
+		}
+	}
+	if index == -1 {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Recipe not found",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, recipes[index])
+}
+
 func init() {
 	recipes = make([]Recipe, 0)
 	file, _ := os.ReadFile("recipes.json")
@@ -205,5 +240,6 @@ func main() {
 	router.PUT("/recipes/:id", UpdateRecipeHandler)
 	router.DELETE("/recipes/:id", DeleteRecipeHandler)
 	router.GET("/recipes/search", SearchRecipesHandler)
+	router.GET("/recipes/:id", GetRecipeHandler)
 	router.Run()
 }
