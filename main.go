@@ -212,19 +212,16 @@ func SearchRecipesHandler(c *gin.Context) {
 //	    description: Invalid recipe ID
 func GetRecipeHandler(c *gin.Context) {
 	id := c.Param("id")
-	index := -1
 	for i := 0; i < len(recipes); i++ {
 		if recipes[i].ID == id {
-			index = i
+			c.JSON(http.StatusOK, recipes[i])
+			return
 		}
 	}
-	if index == -1 {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "Recipe not found",
-		})
-		return
-	}
-	c.JSON(http.StatusOK, recipes[index])
+
+	c.JSON(http.StatusNotFound, gin.H{
+		"error": "Recipe not found",
+	})
 }
 
 func init() {
