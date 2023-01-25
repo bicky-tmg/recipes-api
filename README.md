@@ -9,3 +9,4 @@
 | PUT         | /recipes/{id}         | Updates an existing recipe   |
 | DELETE      | /recipes/{id}         | Deletes an existing recipe   |
 | GET         | /recipes/search?tag=X | Searches for recipes by tags |
+| GET         | /recipes/{id}         | Returns a single recipe      |
