@@ -123,31 +123,32 @@ func ListRecipesHandler(c *gin.Context) {
 //	    description: Invalid input
 //	'404':
 //	    description: Invalid recipe ID
-// func UpdateRecipeHandler(c *gin.Context) {
-// 	id := c.Param("id")
-// 	var recipe Recipe
-// 	if err := c.ShouldBindJSON(&recipe); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		return
-// 	}
-// 	recipe.ID = id
-// 	index := -1
-// 	for i := 0; i < len(recipes); i++ {
-// 		if recipes[i].ID == id {
-// 			index = i
-// 		}
-// 	}
-// 	if index == -1 {
-// 		c.JSON(http.StatusNotFound, gin.H{
-// 			"error": "Recipe not found",
-// 		})
-// 		return
-// 	}
-// 	recipes[index] = recipe
-// 	c.JSON(http.StatusOK, recipe)
-// }
+func UpdateRecipeHandler(c *gin.Context) {
+	collection := client.Database(os.Getenv("MONGO_DATABASE")).Collection("recipes")
+	id := c.Param("id")
+	var recipe Recipe
+	if err := c.ShouldBindJSON(&recipe); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	objectID, _ := primitive.ObjectIDFromHex(id)
+	_, err = collection.UpdateOne(ctx, bson.M{
+		"_id": objectID,
+	}, bson.D{{"$set", bson.D{
+		{"name", recipe.Name},
+		{"instructions", recipe.Instructions},
+		{"ingredients", recipe.Ingredients},
+		{"tags", recipe.Tags},
+	}}})
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Recipe has been updated"})
+}
 
 // swagger:operation DELETE /recipes/{id} recipes deleteRecipe
 // Delete an existing recipe
@@ -287,7 +288,7 @@ func main() {
 	router := gin.Default()
 	router.POST("/recipes", NewRecipeHandler)
 	router.GET("/recipes", ListRecipesHandler)
-	// router.PUT("/recipes/:id", UpdateRecipeHandler)
+	router.PUT("/recipes/:id", UpdateRecipeHandler)
 	// router.DELETE("/recipes/:id", DeleteRecipeHandler)
 	router.GET("/recipes/search", SearchRecipesHandler)
 	// router.GET("/recipes/:id", GetRecipeHandler)
