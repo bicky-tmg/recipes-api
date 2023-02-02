@@ -93,6 +93,12 @@ func (handler *RecipesHandler) ListRecipesHandler(c *gin.Context) {
 //	'400':
 //	    description: Invalid input
 func (handler *RecipesHandler) NewRecipeHandler(c *gin.Context) {
+	// if c.GetHeader("X-API-KEY") != os.Getenv("X_API_KEY") {
+	// 	c.JSON(http.StatusUnauthorized, gin.H{
+	// 		"error": "API key not found or invalid",
+	// 	})
+	// 	return
+	// }
 	var recipe models.Recipe
 	if err := c.ShouldBindJSON(&recipe); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -225,3 +231,37 @@ func (handler *RecipesHandler) GetRecipeHandler(c *gin.Context) {
 
 	c.JSON(http.StatusOK, recipe)
 }
+
+// swagger:operation GET /recipes/search recipes findRecipe
+// Search recipes based on tags
+// ---
+// produces:
+// - application/json
+// parameters:
+//   - name: tag
+//     in: query
+//     description: recipe tag
+//     required: true
+//     type: string
+//
+// responses:
+//
+//	'200':
+//	    description: Successful operation
+/** func SearchRecipesHandler(c *gin.Context) {
+	tag := c.Query("tag")
+	listOfRecipes := make([]Recipe, 0)
+	for i := 0; i < len(recipes); i++ {
+		found := false
+		for _, t := range recipes[i].Tags {
+			if strings.EqualFold(t, tag) {
+				found = true
+			}
+		}
+		if found {
+			listOfRecipes = append(listOfRecipes, recipes[i])
+		}
+	}
+	c.JSON(http.StatusOK, listOfRecipes)
+}
+*/
